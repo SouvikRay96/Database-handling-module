@@ -1,4 +1,5 @@
 from dataclasses import fields
+from msilib.schema import tables
 import mysql.connector as sqltor
 
 mydb = sqltor.connect(host = "localhost",user = "root",password = "tojosoumili12",auth_plugin = "mysql_native_password")#establishing connection
@@ -245,6 +246,8 @@ def update_records(db_name,table_name):
     print()
     print("The updation done succecsfully...")
 
+# Adding single column to an existing table
+
 def add_single_column(db_name,table_name):
     """This function is used add a column with it's data type to an existing table...
     This function only adds single column to the table. To add more columns we have to again call the function"""
@@ -296,11 +299,44 @@ def add_multi_column(db_name,table_name):
         print("The table does not exists...")
         print()
 
+# Deleting columns from the existing table
+
+def del_columns(db_name,table_name):
+    """This function is to delete columns from an existing table.
+    The number of columns to be deleted is asked by the program to the user."""
+    mycur.execute("use {}".format(db_name)) # To select the current working database
+    mycur.execute("show tables")
+    tables = mycur.fetchall() # To fetch all the tables in the current working database
+    del_command = "" # A string variable which stores all the column names which is/are to be deleted
+    if (table_name,) in tables:
+        col_number = int(input("How many number of columns do you want to delete: "))
+        print() # Prompts the user to enter hoe many number of columns is/are to be deleted
+        c = 0 # A counter variable which creates a tab when we enter the last column name
+        for i in range(col_number):
+            c = c + 1
+            col_name = input("Enter the column name which is to be deleted: ")
+            if c != col_number:
+                del_command += "drop column {column_name},".format(column_name = col_name)
+            else :
+                del_command += "drop column {col_name}".format(col_name = col_name)
+        # Formatting the command for the sql
+        command = "alter table {table_name} {del_command}".format(table_name = table_name,del_command = del_command)
+        mycur.execute(command) # Execution of the command
+        mydb.commit() # Committing changes in SQL
+        print()
+        print("The deletion of selected columns is successfull...")
+        print() # Message to display that the deletion of row is successfull
+    else:
+        print()
+        print("The table does not exists...")
+        print() # Message to display that the table does not exists
+
 
     
 
 db_name = input("Enter database name: ")
 table_name = input("Enter table name: ")
-del_records(db_name,table_name)
+add_multi_column(db_name,table_name)
+del_columns(db_name,table_name)
 
 
